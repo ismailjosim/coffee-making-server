@@ -2,7 +2,7 @@ require("cors")
 require("colors")
 require("dotenv").config()
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -38,7 +38,6 @@ dbConnect()
 
 
 // section: All Section
-// default Route
 app.get('/', (req, res) => {
     try {
         res.send("Coffee making Server Running 🚩")
@@ -69,6 +68,24 @@ app.get('/products', async (req, res) => {
         })
     }
 })
+// get: single product
+app.get('/products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const product = await productsCollection.findOne(query);
+
+        res.send({
+            success: true,
+            product: product
+        })
+    } catch (error) {
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
 
 // Add: new Products route
 app.post('/products', async (req, res) => {
@@ -89,7 +106,59 @@ app.post('/products', async (req, res) => {
     }
 })
 
+// delete single data
+app.delete('/products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await productsCollection.deleteOne(query);
+        res.send({
+            success: true,
+            result: result
+        })
 
+    } catch (error) {
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
+
+// update single element
+app.put('/products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+
+        const updatedProduct = req.body;
+
+        const updatedDoc = {
+            $set: {
+                category: updatedProduct.category,
+                chef: updatedProduct.chef,
+                details: updatedProduct.details,
+                price: updatedProduct.price,
+                name: updatedProduct.name,
+                photo: updatedProduct.photo,
+                taste: updatedProduct.taste
+            }
+        }
+        const result = await productsCollection.updateOne(filter, updatedDoc, options);
+        res.send({
+            success: true,
+            product: result
+        })
+
+    } catch (error) {
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
 
 app.listen(port, () => {
     console.log(`Coffee server running on port: ${ port }`.italic.bold.bgRed);
