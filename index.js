@@ -165,4 +165,4 @@ app.listen(port, () => {
     console.log(`Coffee server running on port: ${ port }`.italic.bold.bgRed);
 })
 
-module.exports = app;
+// module.exports = app;
