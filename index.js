@@ -1,7 +1,7 @@
-require("dotenv").config()
-const express = require('express');
 require("cors")
 require("colors")
+require("dotenv").config()
+const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 
@@ -14,9 +14,8 @@ app.use(express.json())
 
 // database connection
 const uri = `mongodb+srv://${ process.env.DB_USER }:${ process.env.DB_PASSWORD }@cluster0.vmiugbh.mongodb.net/?retryWrites=true&w=majority`;
-// const uri = "mongodb+srv://ismailjosimm:kHOzEWvux60XhWpo@cluster0.vmiugbh.mongodb.net/?retryWrites=true&w=majority";
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// Connect Database
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -165,4 +164,3 @@ app.listen(port, () => {
     console.log(`Coffee server running on port: ${ port }`.italic.bold.bgRed);
 })
 
-// module.exports = app;
