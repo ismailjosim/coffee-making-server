@@ -1,9 +1,10 @@
-require("cors")
-require("colors")
 require("dotenv").config()
 const express = require('express');
+require("cors")
+require("colors")
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -163,3 +164,5 @@ app.put('/products/:id', async (req, res) => {
 app.listen(port, () => {
     console.log(`Coffee server running on port: ${ port }`.italic.bold.bgRed);
 })
+
+module.exports = app;
