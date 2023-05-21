@@ -1,4 +1,3 @@
-require("cors")
 require("colors")
 require("dotenv").config()
 const express = require('express');
@@ -34,7 +33,7 @@ const dbConnect = async () => {
         console.log(error.name, error.message);
     }
 }
-dbConnect()
+dbConnect();
 
 
 // section: All Section
@@ -86,6 +85,16 @@ app.get('/products/:id', async (req, res) => {
         })
     }
 })
+
+
+// get data via search option
+app.get('/search/:data', async (req, res) => {
+    const searchText = req.params.data;
+    const query = { name: searchText };
+    const result = await productsCollection.find(query).toArray();
+    res.send(result)
+})
+
 
 // Add: new Products route
 app.post('/products', async (req, res) => {
@@ -162,5 +171,15 @@ app.put('/products/:id', async (req, res) => {
 
 app.listen(port, () => {
     console.log(`Coffee server running on port: ${ port }`.italic.bold.bgRed);
+})
+
+app.get('/sort/:text', async (req, res) => {
+    if (req.params.text == 'acc') {
+        const result = await collName.find().sort({ price: 1 }).toArray();
+        res.send(result)
+    } else {
+        const result = await collName.find().sort({ price: -1 }).toArray();
+        res.send(result)
+    }
 })
 
