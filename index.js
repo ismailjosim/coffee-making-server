@@ -49,6 +49,7 @@ app.get('/', (req, res) => {
 })
 
 const productsCollection = client.db('coffee').collection('products');
+const orderCollection = client.db('coffee').collection('orders')
 
 // get All Products Route
 app.get('/products', async (req, res) => {
@@ -114,7 +115,39 @@ app.post('/products', async (req, res) => {
         })
     }
 })
-
+app.post('/orders', async (req, res) => {
+    try {
+        const data = req.body;
+        if (data) {
+            const order = await orderCollection.insertOne(data);
+            res.send({
+                success: true,
+                order: order
+            })
+        }
+    } catch (error) {
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
+app.get('/orders', async (req, res) => {
+    try {
+        const query = {};
+        const orders = await orderCollection.find(query).toArray();
+        res.send({
+            success: true,
+            items: orders.length,
+            orders: orders
+        })
+    } catch (error) {
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
 // delete single data
 app.delete('/products/:id', async (req, res) => {
     try {
@@ -183,3 +216,7 @@ app.get('/sort/:text', async (req, res) => {
     }
 })
 
+
+// {
+//     toys.map(toy => <Tab>{ toy.category}</Tab>)
+// }
