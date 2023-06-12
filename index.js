@@ -148,6 +148,22 @@ app.get('/orders', async (req, res) => {
         })
     }
 })
+app.get('/orders/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const orders = await orderCollection.findOne(query);
+        res.send({
+            success: true,
+            orders: orders
+        })
+    } catch (error) {
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
 // delete single data
 app.delete('/products/:id', async (req, res) => {
     try {
