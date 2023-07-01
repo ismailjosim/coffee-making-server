@@ -224,10 +224,10 @@ app.listen(port, () => {
 
 app.get('/sort/:text', async (req, res) => {
     if (req.params.text == 'acc') {
-        const result = await collName.find().sort({ price: 1 }).toArray();
+        const result = await orderCollection.find().sort({ price: 1 }).toArray();
         res.send(result)
     } else {
-        const result = await collName.find().sort({ price: -1 }).toArray();
+        const result = await orderCollection.find().sort({ price: -1 }).toArray();
         res.send(result)
     }
 })
