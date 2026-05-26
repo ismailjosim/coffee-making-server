@@ -1,5 +1,5 @@
-require("colors")
-require("dotenv").config()
+require('colors');
+require('dotenv').config();
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
@@ -9,183 +9,157 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 
 // database connection
-const uri = `mongodb+srv://${ process.env.DB_USER }:${ process.env.DB_PASSWORD }@cluster0.vmiugbh.mongodb.net/?retryWrites=true&w=majority`;
+const uri = process.env.MONGODB_URL;
 
 // Connect Database
 const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
 });
 
+async function run() {
+  try {
+    const productsCollection = client.db('coffee').collection('products');
+    const orderCollection = client.db('coffee').collection('orders');
 
-
-const dbConnect = async () => {
-    try {
-        await client.connect();
-        console.log("Database Connected successfully ✅".bgCyan);
-    } catch (error) {
-        console.log(error.name, error.message);
-    }
-}
-dbConnect();
-
-
-// section: All Section
-app.get('/', (req, res) => {
-    try {
-        res.send("Coffee making Server Running 🚩")
-    } catch (error) {
-        res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-
-const productsCollection = client.db('coffee').collection('products');
-const orderCollection = client.db('coffee').collection('orders')
-
-// get All Products Route
-app.get('/products', async (req, res) => {
-    try {
+    // get All Products Route
+    app.get('/products', async (req, res) => {
+      try {
         const query = {};
         const products = await productsCollection.find(query).toArray();
         res.send({
-            success: true,
-            items: products.length,
-            products: products
-        })
-    } catch (error) {
+          success: true,
+          items: products.length,
+          products: products,
+        });
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-// get: single product
-app.get('/products/:id', async (req, res) => {
-    try {
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+    // get: single product
+    app.get('/products/:id', async (req, res) => {
+      try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
         const product = await productsCollection.findOne(query);
 
         res.send({
+          success: true,
+          product: product,
+        });
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+
+    // get data via search option
+    app.get('/search/:data', async (req, res) => {
+      const searchText = req.params.data;
+      const query = { name: searchText };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Add: new Products route
+    app.post('/products', async (req, res) => {
+      try {
+        const data = req.body;
+        if (data) {
+          const product = await productsCollection.insertOne(data);
+          res.send({
             success: true,
-            product: product
-        })
-    } catch (error) {
+            message: product,
+          });
+        }
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-
-
-// get data via search option
-app.get('/search/:data', async (req, res) => {
-    const searchText = req.params.data;
-    const query = { name: searchText };
-    const result = await productsCollection.find(query).toArray();
-    res.send(result)
-})
-
-
-// Add: new Products route
-app.post('/products', async (req, res) => {
-    try {
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+    app.post('/orders', async (req, res) => {
+      try {
         const data = req.body;
         if (data) {
-            const product = await productsCollection.insertOne(data);
-            res.send({
-                success: true,
-                message: product
-            })
+          const order = await orderCollection.insertOne(data);
+          res.send({
+            success: true,
+            order: order,
+          });
         }
-    } catch (error) {
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-app.post('/orders', async (req, res) => {
-    try {
-        const data = req.body;
-        if (data) {
-            const order = await orderCollection.insertOne(data);
-            res.send({
-                success: true,
-                order: order
-            })
-        }
-    } catch (error) {
-        res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-app.get('/orders', async (req, res) => {
-    try {
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+    app.get('/orders', async (req, res) => {
+      try {
         const query = {};
         const orders = await orderCollection.find(query).toArray();
         res.send({
-            success: true,
-            items: orders.length,
-            orders: orders
-        })
-    } catch (error) {
+          success: true,
+          items: orders.length,
+          orders: orders,
+        });
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-app.get('/orders/:id', async (req, res) => {
-    try {
-        const id = req.params.id
-        const query = { _id: new ObjectId(id) }
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+    app.get('/orders/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
         const orders = await orderCollection.findOne(query);
         res.send({
-            success: true,
-            orders: orders
-        })
-    } catch (error) {
+          success: true,
+          orders: orders,
+        });
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
-// delete single data
-app.delete('/products/:id', async (req, res) => {
-    try {
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+    // delete single data
+    app.delete('/products/:id', async (req, res) => {
+      try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
         const result = await productsCollection.deleteOne(query);
         res.send({
-            success: true,
-            result: result
-        })
-
-    } catch (error) {
+          success: true,
+          result: result,
+        });
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
+          success: false,
+          error: error.message,
+        });
+      }
+    });
 
-// update single element
-app.put('/products/:id', async (req, res) => {
-    try {
+    // update single element
+    app.put('/products/:id', async (req, res) => {
+      try {
         const id = req.params.id;
 
         const filter = { _id: new ObjectId(id) };
@@ -194,45 +168,49 @@ app.put('/products/:id', async (req, res) => {
         const updatedProduct = req.body;
 
         const updatedDoc = {
-            $set: {
-                category: updatedProduct.category,
-                chef: updatedProduct.chef,
-                details: updatedProduct.details,
-                price: updatedProduct.price,
-                name: updatedProduct.name,
-                photo: updatedProduct.photo,
-                taste: updatedProduct.taste
-            }
-        }
+          $set: {
+            category: updatedProduct.category,
+            chef: updatedProduct.chef,
+            details: updatedProduct.details,
+            price: updatedProduct.price,
+            name: updatedProduct.name,
+            photo: updatedProduct.photo,
+            taste: updatedProduct.taste,
+          },
+        };
         const result = await productsCollection.updateOne(filter, updatedDoc, options);
         res.send({
-            success: true,
-            product: result
-        })
-
-    } catch (error) {
+          success: true,
+          product: result,
+        });
+      } catch (error) {
         res.send({
-            success: false,
-            error: error.message
-        })
-    }
-})
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+
+    // Send a ping to confirm a successful connection
+    await client.db('admin').command({ ping: 1 });
+    console.log('Pinged your deployment. You successfully connected to MongoDB!');
+  } finally {
+  }
+}
+run().catch(console.dir);
+
+// section: All Section
+app.get('/', (req, res) => {
+  try {
+    res.send('Coffee making Server Running 🚩');
+  } catch (error) {
+    res.send({
+      success: false,
+      error: error.message,
+    });
+  }
+});
 
 app.listen(port, () => {
-    console.log(`Coffee server running on port: ${ port }`.italic.bold.bgRed);
-})
-
-app.get('/sort/:text', async (req, res) => {
-    if (req.params.text == 'acc') {
-        const result = await orderCollection.find().sort({ price: 1 }).toArray();
-        res.send(result)
-    } else {
-        const result = await orderCollection.find().sort({ price: -1 }).toArray();
-        res.send(result)
-    }
-})
-
-
-// {
-//     toys.map(toy => <Tab>{ toy.category}</Tab>)
-// }
+  console.log(`Coffee server running on port: ${port}`.italic.bold.bgRed);
+});

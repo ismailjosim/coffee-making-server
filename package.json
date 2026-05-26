@@ -1,19 +1,26 @@
 {
-	"dependencies": {
-		"colors": "^1.4.0",
-		"cors": "^2.8.5",
-		"dotenv": "^16.0.3",
-		"express": "^4.18.2",
-		"mongodb": "^5.4.0"
-	},
-	"name": "module-68",
-	"version": "1.0.0",
-	"main": "index.js",
-	"scripts": {
-		"start": "nodemon index.js",
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "",
-	"license": "ISC",
-	"description": ""
+  "dependencies": {
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^5.4.0"
+  },
+  "name": "module-68",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "lint": "eslint",
+    "format": "prettier --write '**/*.{js,jsx,json}'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "eslint": "^10.4.0",
+    "prettier": "^3.8.3"
+  }
 }
