@@ -1,203 +1,56 @@
 require('colors');
 require('dotenv').config();
 const express = require('express');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+
+// Import MVC components
+const { initializeDatabase } = require('./config/database');
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// middleware
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// database connection
-const uri = process.env.MONGODB_URL;
+// Routes
+app.use('/products', productRoutes);
+app.use('/orders', orderRoutes);
 
-// Connect Database
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
+// Root endpoint
+app.get('/', (req, res) => {
+  res.send({
+    message: 'Coffee Making API - MVC Architecture',
+    version: '2.0',
+    endpoints: {
+      products: '/products',
+      orders: '/orders',
+      search: '/products/search/:data',
+    },
+  });
 });
 
-async function run() {
+// Error handling middleware
+app.use(errorHandler);
+
+// Initialize database and start server
+async function start() {
   try {
-    const productsCollection = client.db('coffee').collection('products');
-    const orderCollection = client.db('coffee').collection('orders');
+    await initializeDatabase();
 
-    // get All Products Route
-    app.get('/products', async (req, res) => {
-      try {
-        const query = {};
-        const products = await productsCollection.find(query).toArray();
-        res.send({
-          success: true,
-          items: products.length,
-          products: products,
-        });
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`.bgBlue.white);
     });
-    // get: single product
-    app.get('/products/:id', async (req, res) => {
-      try {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const product = await productsCollection.findOne(query);
-
-        res.send({
-          success: true,
-          product: product,
-        });
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-
-    // get data via search option
-    app.get('/search/:data', async (req, res) => {
-      const searchText = req.params.data;
-      const query = { name: searchText };
-      const result = await productsCollection.find(query).toArray();
-      res.send(result);
-    });
-
-    // Add: new Products route
-    app.post('/products', async (req, res) => {
-      try {
-        const data = req.body;
-        if (data) {
-          const product = await productsCollection.insertOne(data);
-          res.send({
-            success: true,
-            message: product,
-          });
-        }
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-    app.post('/orders', async (req, res) => {
-      try {
-        const data = req.body;
-        if (data) {
-          const order = await orderCollection.insertOne(data);
-          res.send({
-            success: true,
-            order: order,
-          });
-        }
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-    app.get('/orders', async (req, res) => {
-      try {
-        const query = {};
-        const orders = await orderCollection.find(query).toArray();
-        res.send({
-          success: true,
-          items: orders.length,
-          orders: orders,
-        });
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-    app.get('/orders/:id', async (req, res) => {
-      try {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const orders = await orderCollection.findOne(query);
-        res.send({
-          success: true,
-          orders: orders,
-        });
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-    // delete single data
-    app.delete('/products/:id', async (req, res) => {
-      try {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const result = await productsCollection.deleteOne(query);
-        res.send({
-          success: true,
-          result: result,
-        });
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-
-    // update single element
-    app.put('/products/:id', async (req, res) => {
-      try {
-        const id = req.params.id;
-
-        const filter = { _id: new ObjectId(id) };
-        const options = { upsert: true };
-
-        const updatedProduct = req.body;
-
-        const updatedDoc = {
-          $set: {
-            category: updatedProduct.category,
-            chef: updatedProduct.chef,
-            details: updatedProduct.details,
-            price: updatedProduct.price,
-            name: updatedProduct.name,
-            photo: updatedProduct.photo,
-            taste: updatedProduct.taste,
-          },
-        };
-        const result = await productsCollection.updateOne(filter, updatedDoc, options);
-        res.send({
-          success: true,
-          product: result,
-        });
-      } catch (error) {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      }
-    });
-
-    // Send a ping to confirm a successful connection
-    await client.db('admin').command({ ping: 1 });
-    console.log('Pinged your deployment. You successfully connected to MongoDB!');
-  } finally {
+  } catch (error) {
+    console.error('Failed to start server:'.bgRed.white, error);
+    process.exit(1);
   }
 }
-run().catch(console.dir);
+
+start();
 
 // section: All Section
 app.get('/', (req, res) => {
