@@ -1,4 +1,30 @@
 {
+  "name": "coffee-making-server",
+  "version": "1.0.0",
+  "description": "Coffee Making API - MVC Architecture with Express, MongoDB, and Firebase",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "dev:clean": "pnpm stop-dev; pnpm free-port; pnpm dev",
+    "dev:alt": "PORT=5001 nodemon index.js",
+    "stop-dev": "node scripts/stop-dev.js",
+    "free-port": "node scripts/free-port.js",
+    "lint": "eslint .",
+    "format": "prettier --write '**/*.{js,json}'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "coffee",
+    "api",
+    "express",
+    "mongodb",
+    "firebase",
+    "mvc"
+  ],
+  "author": "ismailjosim",
+  "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
     "cors": "^2.8.5",
@@ -7,21 +33,9 @@
     "firebase-admin": "^13.10.0",
     "mongodb": "^5.4.0"
   },
-  "name": "module-68",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "lint": "eslint",
-    "format": "prettier --write '**/*.{js,jsx,json}'",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "eslint": "^10.4.0",
+    "nodemon": "^3.0.1",
     "prettier": "^3.8.3"
   }
 }
