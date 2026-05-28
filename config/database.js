@@ -35,10 +35,15 @@ const getOrdersCollection = () => {
   return getDatabase().collection('orders');
 };
 
+const getUsersCollection = () => {
+  return getDatabase().collection('users');
+};
+
 module.exports = {
   client,
   initializeDatabase,
   getDatabase,
   getProductsCollection,
   getOrdersCollection,
+  getUsersCollection,
 };
