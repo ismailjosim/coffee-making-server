@@ -5,7 +5,7 @@ const cors = require('cors');
 
 // Import MVC components
 const { initializeDatabase } = require('./config/database');
-const { initializeFirebase } = require('./config/firebase');
+const admin = require('./config/firebase');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -53,7 +53,6 @@ async function start() {
     console.log('\n🚀 Starting Coffee Making Server...'.bgBlue.white);
 
     await initializeDatabase();
-    initializeFirebase();
 
     const server = app.listen(port, '0.0.0.0', () => {
       serverStarted = true;
